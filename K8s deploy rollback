@@ -1,0 +1,70 @@
+# Step 1: Create Version 1 Deployment YAML
+# File: mydeploy-v1.yml
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mydep
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: myapp
+  template:
+    metadata:
+      labels:
+        app: myapp
+    spec:
+      containers:
+        - name: ubuntu-container
+          image: ubuntu:22.04
+          command: ["/bin/sh", "-c", "while true; do echo hello world; sleep 5; done"]
+
+---
+
+# Step 2: Create Version 2 Deployment YAML
+# File: mydeploy-v2.yml
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mydep
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: myapp
+  template:
+    metadata:
+      labels:
+        app: myapp
+    spec:
+      containers:
+        - name: ubuntu-container
+          image: ubuntu:22.04
+          command: ["/bin/sh", "-c", "while true; do echo 'hi i am teaching k8s'; sleep 5; done"]
+
+---
+
+# Step 3: Deployment Commands
+# Apply version 1
+echo "Applying version 1..."
+kubectl apply -f mydeploy-v1.yml
+kubectl rollout status deployment/mydep
+
+# Apply version 2 (upgrade)
+echo "Applying version 2..."
+kubectl apply -f mydeploy-v2.yml
+kubectl rollout status deployment/mydep
+
+# View rollout history
+kubectl rollout history deployment/mydep
+
+# Rollback to previous version
+kubectl rollout undo deployment/mydep
+
+# Check updated pods
+kubectl get pods
+
+# View logs from a pod (example)
+kubectl logs -f <pod-name>
